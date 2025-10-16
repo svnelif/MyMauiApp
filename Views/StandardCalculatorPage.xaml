@@ -1,0 +1,111 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MyMauiApp.Views.StandardCalculatorPage"
+             BackgroundColor="#F5F7FB"
+             Shell.NavBarIsVisible="False">
+
+    <VerticalStackLayout Padding="25" Spacing="15">
+
+        <!-- Üst Başlık -->
+        <Grid ColumnDefinitions="Auto,*,Auto"
+              VerticalOptions="Start"
+              Margin="0,10,0,10"
+              HeightRequest="40">
+
+            <!-- ☰ Menü Butonu -->
+            <Button
+                Text="☰"
+                FontSize="30"
+                BackgroundColor="Transparent"
+                TextColor="#3B3B3B"
+                Clicked="OnMenuClicked"
+                WidthRequest="50"
+                HorizontalOptions="Start"
+                VerticalOptions="Center" />
+
+            <!-- Başlık -->
+            <Label
+                Grid.Column="1"
+                Text="Standard"
+                FontSize="27"
+                FontAttributes="Bold"
+                TextColor="#3B3B3B"
+                VerticalOptions="Center"
+                HorizontalTextAlignment="Start"
+                Padding="10,0,0,0"
+                Margin="0,8,0,0" />
+
+            <!-- Yenile simgesi -->
+            <Button
+                Grid.Column="2"
+                Text="⟳"
+                FontSize="22"
+                BackgroundColor="Transparent"
+                TextColor="#3B3B3B"
+                Clicked="OnClearClicked"
+                HorizontalOptions="End"
+                VerticalOptions="Center" />
+        </Grid>
+
+
+        <!-- Ekran -->
+        <Border StrokeThickness="1"
+                Stroke="#FFD6AAB8"
+                Background="White"
+                StrokeShape="RoundRectangle 10"
+                Padding="10,15">
+            <Entry x:Name="Display"
+                   Text="0"
+                   FontSize="54"
+                   HorizontalTextAlignment="End"
+                   IsReadOnly="True"
+                   BackgroundColor="Transparent"
+                   TextColor="#222"
+                   FontAttributes="Bold"/>
+        </Border>
+
+        <!-- Butonlar -->
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+              ColumnDefinitions="*,*,*,*"
+              RowSpacing="8"
+              ColumnSpacing="8">
+
+            <!-- 1 -->
+            <Button Text="%" Grid.Row="0" Grid.Column="0" Style="{StaticResource CalcBtn}" Clicked="OnPercentClicked"/>
+            <Button Text="CE" Grid.Row="0" Grid.Column="1" Style="{StaticResource CalcBtnGray}" Clicked="OnClearClicked"/>
+            <Button Text="C" Grid.Row="0" Grid.Column="2" Style="{StaticResource CalcBtnGray}" Clicked="OnClearClicked"/>
+            <Button Text="⌫" Grid.Row="0" Grid.Column="3" Style="{StaticResource CalcBtnGray}" Clicked="OnBackspaceClicked"/>
+
+            <!-- 2 -->
+            <Button Text="¹⁄ₓ" Grid.Row="1" Grid.Column="0" Style="{StaticResource CalcBtn}" Clicked="OnFunctionClicked"/>
+            <Button Text="x²"  Grid.Row="1" Grid.Column="1" Style="{StaticResource CalcBtn}" Clicked="OnFunctionClicked"/>
+            <Button Text="²√x" Grid.Row="1" Grid.Column="2" Style="{StaticResource CalcBtn}" Clicked="OnFunctionClicked"/>
+            <Button Text="÷"   Grid.Row="1" Grid.Column="3" Style="{StaticResource CalcBtnOp}" Clicked="OnOperatorClicked"/>
+
+            <!-- 3 -->
+            <Button Text="7" Grid.Row="2" Grid.Column="0" Style="{StaticResource CalcBtn}" Clicked="OnNumberClicked"/>
+            <Button Text="8" Grid.Row="2" Grid.Column="1" Style="{StaticResource CalcBtn}" Clicked="OnNumberClicked"/>
+            <Button Text="9" Grid.Row="2" Grid.Column="2" Style="{StaticResource CalcBtn}" Clicked="OnNumberClicked"/>
+            <Button Text="×" Grid.Row="2" Grid.Column="3" Style="{StaticResource CalcBtnOp}" Clicked="OnOperatorClicked"/>
+
+            <!-- 4 -->
+            <Button Text="4" Grid.Row="3" Grid.Column="0" Style="{StaticResource CalcBtn}" Clicked="OnNumberClicked"/>
+            <Button Text="5" Grid.Row="3" Grid.Column="1" Style="{StaticResource CalcBtn}" Clicked="OnNumberClicked"/>
+            <Button Text="6" Grid.Row="3" Grid.Column="2" Style="{StaticResource CalcBtn}" Clicked="OnNumberClicked"/>
+            <Button Text="–" Grid.Row="3" Grid.Column="3" Style="{StaticResource CalcBtnOp}" Clicked="OnOperatorClicked"/>
+
+            <!-- 5 -->
+            <Button Text="1" Grid.Row="4" Grid.Column="0" Style="{StaticResource CalcBtn}" Clicked="OnNumberClicked"/>
+            <Button Text="2" Grid.Row="4" Grid.Column="1" Style="{StaticResource CalcBtn}" Clicked="OnNumberClicked"/>
+            <Button Text="3" Grid.Row="4" Grid.Column="2" Style="{StaticResource CalcBtn}" Clicked="OnNumberClicked"/>
+            <Button Text="+" Grid.Row="4" Grid.Column="3" Style="{StaticResource CalcBtnOp}" Clicked="OnOperatorClicked"/>
+
+            <!-- 6 -->
+            <Button Text="+/–" Grid.Row="5" Grid.Column="0" Style="{StaticResource CalcBtn}" Clicked="OnNegateClicked"/>
+            <Button Text="0"   Grid.Row="5" Grid.Column="1" Style="{StaticResource CalcBtn}" Clicked="OnNumberClicked"/>
+            <Button Text=","   Grid.Row="5" Grid.Column="2" Style="{StaticResource CalcBtn}" Clicked="OnDecimalClicked"/>
+            <Button Text="="   Grid.Row="5" Grid.Column="3" Style="{StaticResource CalcBtnEqual}" Clicked="OnEqualsClicked"/>
+        </Grid>
+
+    </VerticalStackLayout>
+</ContentPage>

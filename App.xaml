@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MyMauiApp.App">
+  <Application.Resources>
+
+    <!-- 🎨 Renkler -->
+    <Color x:Key="BtnWhite">#FFFFFF</Color>
+    <Color x:Key="BtnGray">#FFF6E2F5</Color>
+    <Color x:Key="BtnBlueLight">#FFDEDEDE</Color>
+    <!-- Pembe ana renk (eşittir butonu vs.) -->
+    <Color x:Key="BtnBlue">#E48ADF</Color>
+    <Color x:Key="BtnTextDark">#222222</Color>
+    <Color x:Key="BorderLight">#D6AAB8</Color>
+
+    <!-- 🔘 Genel buton stili -->
+    <Style x:Key="CalcBtn" TargetType="Button">
+      <Setter Property="FontSize" Value="22"/>
+      <Setter Property="BackgroundColor" Value="{StaticResource BtnWhite}"/>
+      <Setter Property="TextColor" Value="{StaticResource BtnTextDark}"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="BorderColor" Value="{StaticResource BorderLight}"/>
+      <Setter Property="BorderWidth" Value="1"/>
+      <Setter Property="HeightRequest" Value="65"/>
+    </Style>
+
+    <!-- 🔘 Gri buton -->
+    <Style x:Key="CalcBtnGray" TargetType="Button" BasedOn="{StaticResource CalcBtn}">
+      <Setter Property="BackgroundColor" Value="{StaticResource BtnGray}"/>
+      <Setter Property="TextColor" Value="#2B2B2B"/>
+    </Style>
+
+    <!-- 🔘 Operatör butonu -->
+    <Style x:Key="CalcBtnOp" TargetType="Button" BasedOn="{StaticResource CalcBtn}">
+      <Setter Property="BackgroundColor" Value="{StaticResource BtnBlueLight}"/>
+      <Setter Property="TextColor" Value="{StaticResource BtnBlue}"/>
+    </Style>
+
+    <!-- 🔘 Eşittir butonu -->
+    <Style x:Key="CalcBtnEqual" TargetType="Button" BasedOn="{StaticResource CalcBtn}">
+      <Setter Property="BackgroundColor" Value="{StaticResource BtnBlue}"/>
+      <Setter Property="TextColor" Value="White"/>
+      <Setter Property="FontAttributes" Value="Bold"/>
+    </Style>
+
+    <!-- ⚠️ NOT: FlyoutItem/ShellContent için stil KULLANMIYORUZ.
+         Flyout yazı boyutunu AppShell.xaml içinde Shell.ItemTemplate ile ayarlayacağız. -->
+
+  </Application.Resources>
+</Application>
