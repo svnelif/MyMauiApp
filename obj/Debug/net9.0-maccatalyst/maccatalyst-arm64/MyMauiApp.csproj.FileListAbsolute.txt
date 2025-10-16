@@ -294,6 +294,7 @@
 /Users/svnelif/MyMauiApp/obj/Debug/net9.0-maccatalyst/maccatalyst-arm64/MyMauiApp.csproj.Up2Date
 /Users/svnelif/MyMauiApp/obj/Debug/net9.0-maccatalyst/maccatalyst-arm64/MyMauiApp.genruntimeconfig.cache
 /Users/svnelif/MyMauiApp/obj/Debug/net9.0-maccatalyst/maccatalyst-arm64/ref/MyMauiApp.dll
+/Users/svnelif/MyMauiApp/obj/Debug/net9.0-maccatalyst/maccatalyst-arm64/MyMauiApp.sourcelink.json
 /Users/svnelif/MyMauiApp/obj/Debug/net9.0-maccatalyst/maccatalyst-arm64/resourcestamps/Microsoft.Extensions.Configuration.Abstractions.stamp
 /Users/svnelif/MyMauiApp/obj/Debug/net9.0-maccatalyst/maccatalyst-arm64/resourcestamps/Microsoft.Extensions.Configuration.stamp
 /Users/svnelif/MyMauiApp/obj/Debug/net9.0-maccatalyst/maccatalyst-arm64/resourcestamps/Microsoft.Extensions.DependencyInjection.Abstractions.stamp

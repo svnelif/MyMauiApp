@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace MyMauiApp.Views;
 
@@ -63,145 +64,139 @@ public partial class ScientificCalculatorPage : ContentPage
         if (string.IsNullOrWhiteSpace(_input))
             return;
 
-        if (_input.EndsWith(" + ") || _input.EndsWith(" - ") ||
-            _input.EndsWith(" * ") || _input.EndsWith(" / ") ||
-            _input.EndsWith(" % ") || _input.EndsWith(" ^ "))
-        {
-            _input = _input[..^3];
-        }
-
         _input += $" {op} ";
         Display.Text = _input.Replace("*", "×").Replace("/", "÷").Replace("-", "–");
     }
 
     // 🔹 Fonksiyonlar (bilimsel)
-    private async void OnFunctionClicked(object sender, EventArgs e)
+    private void OnFunctionClicked(object sender, EventArgs e)
+{
+    var func = ((Button)sender).Text;
+
+    // Eğer ekranda hata varsa sıfırla
+    if (Display.Text == "Hata" || Display.Text == "Tanımsız" || Display.Text == "Belirsiz")
     {
-        if (!double.TryParse(Display.Text.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double v))
-            return;
-
-        var func = ((Button)sender).Text;
-        double result = v;
-
-        try
-        {
-            switch (func)
-            {
-                case "ln": result = Math.Log(v); break;
-                case "log₁₀": result = Math.Log10(v); break;
-                case "e": result = Math.E; break;
-                case "x²": result = Math.Pow(v, 2); break;
-                case "²√x": result = Math.Sqrt(v); break;
-                case "¹⁄ₓ": if (v == 0) throw new DivideByZeroException(); result = 1 / v; break;
-                case "sin": result = Math.Sin(v * Math.PI / 180); break;
-                case "cos": result = Math.Cos(v * Math.PI / 180); break;
-                case "tan": result = Math.Tan(v * Math.PI / 180); break;
-                case "exp": result = Math.Exp(v); break;
-                case "10ˣ": result = Math.Pow(10, v); break;
-                case "n!":
-                    if (v < 0) throw new Exception("Negatif sayının faktöriyeli yok.");
-                    result = 1;
-                    for (int i = 1; i <= (int)v; i++) result *= i;
-                    break;
-            }
-
-            if (double.IsNaN(result))
-            {
-                Display.Text = "Tanımsız";
-                Display.TextColor = Colors.Red;
-            }
-            else if (double.IsInfinity(result))
-            {
-                Display.Text = "Belirsiz";
-                Display.TextColor = Colors.Red;
-            }
-            else
-            {
-                Display.Text = result.ToString(CultureInfo.CurrentCulture);
-                Display.TextColor = Colors.Black;
-                _input = result.ToString(CultureInfo.InvariantCulture);
-            }
-        }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Hata", ex.Message, "Tamam");
-            Display.Text = "Tanımsız";
-            Display.TextColor = Colors.Red;
-            _input = "";
-        }
+        Display.Text = "0";
+        _input = "";
     }
+
+    // Eğer sin, cos, tan, ln, log₁₀ gibi bir fonksiyonsa, mevcut metne ekle
+    if (func is "sin" or "cos" or "tan" or "log₁₀" or "ln")
+    {
+        // Eğer ekran 0 veya boşsa direkt yaz
+        if (Display.Text == "0" || string.IsNullOrWhiteSpace(Display.Text))
+            Display.Text = $"{func}(";
+        else
+            Display.Text += $"{func}(";
+
+        _input = Display.Text.Replace(",", ".");
+        return;
+    }
+
+    // Diğer fonksiyonlar (tek parametreli hesaplamalar)
+    if (!double.TryParse(Display.Text.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double v))
+        return;
+
+    double result = v;
+    try
+    {
+        switch (func)
+        {
+            case "x²": result = Math.Pow(v, 2); break;
+            case "²√x": result = Math.Sqrt(v); break;
+            case "¹⁄ₓ":
+                if (v == 0) throw new DivideByZeroException();
+                result = 1 / v;
+                break;
+            case "10ˣ": result = Math.Pow(10, v); break;
+            case "n!":
+                if (v < 0) throw new Exception("Negatif sayının faktöriyeli yok.");
+                result = 1;
+                for (int i = 1; i <= (int)v; i++) result *= i;
+                break;
+        }
+
+        Display.Text = result.ToString(CultureInfo.CurrentCulture);
+        Display.TextColor = Colors.Black;
+        _input = result.ToString(CultureInfo.InvariantCulture);
+    }
+    catch
+    {
+        Display.Text = "Tanımsız";
+        Display.TextColor = Colors.Red;
+    }
+}
 
     // 🔹 Eşittir
     private void OnEqualsClicked(object sender, EventArgs e)
     {
         try
         {
-            string expr = _input.Replace("×", "*").Replace("÷", "/").Replace("–", "-").Replace(",", ".");
+            string expr = Display.Text.Replace(",", ".").Trim();
 
-            // 0 % 0 -> Belirsiz
-            if (expr.Contains("0 % 0") || expr == "0%0")
+            // 🔍 sin(...), cos(...), tan(...), ln(...), log₁₀(...)
+            var match = Regex.Match(expr, @"(sin|cos|tan|log₁₀|ln)\(([^()]+)\)");
+            if (match.Success)
             {
-                Display.Text = "Belirsiz";
-                Display.TextColor = Colors.Red;
-                _input = "";
-                return;
-            }
+                string func = match.Groups[1].Value;
+                string innerExpr = match.Groups[2].Value;
 
-            // 0 / 0 -> Belirsiz
-            if (expr.Contains("0 / 0") || expr == "0/0")
-            {
-                Display.Text = "Belirsiz";
-                Display.TextColor = Colors.Red;
-                _input = "";
-                return;
-            }
+                // parantez içindeki ifadeyi hesapla
+                var table = new System.Data.DataTable();
+                double innerValue = Convert.ToDouble(table.Compute(innerExpr, ""), CultureInfo.InvariantCulture);
 
-            // ÷0 ama 0÷0 değilse -> Tanımsız
-            if ((expr.Contains("/ 0") || expr.EndsWith("/0")) &&
-                !(expr.Contains("0 / 0") || expr == "0/0"))
-            {
-                Display.Text = "Tanımsız";
-                Display.TextColor = Colors.Red;
-                _input = "";
-                return;
-            }
-
-            if (expr.Contains("^"))
-            {
-                var parts = expr.Split('^');
-                if (parts.Length == 2 &&
-                    double.TryParse(parts[0], out double a) &&
-                    double.TryParse(parts[1], out double b))
+                double result = func switch
                 {
-                    var pow = Math.Pow(a, b);
-                    Display.Text = pow.ToString(CultureInfo.CurrentCulture);
-                    Display.TextColor = Colors.Black;
-                    _input = pow.ToString(CultureInfo.InvariantCulture);
-                    return;
+                    "sin" => Math.Sin(innerValue * Math.PI / 180),
+                    "cos" => Math.Cos(innerValue * Math.PI / 180),
+                    "tan" => Math.Tan(innerValue * Math.PI / 180),
+                    "ln" => Math.Log(innerValue),
+                    "log₁₀" => Math.Log10(innerValue),
+                    _ => double.NaN
+                };
+
+                if (double.IsNaN(result))
+                {
+                    Display.Text = "Tanımsız";
+                    Display.TextColor = Colors.Red;
                 }
+                else if (double.IsInfinity(result))
+                {
+                    Display.Text = "Belirsiz";
+                    Display.TextColor = Colors.Red;
+                }
+                else
+                {
+                    Display.Text = result.ToString(CultureInfo.CurrentCulture);
+                    Display.TextColor = Colors.Black;
+                    _input = result.ToString(CultureInfo.InvariantCulture);
+                }
+
+                return;
             }
 
-            var table = new System.Data.DataTable();
-            var result = Convert.ToDouble(table.Compute(expr, ""), CultureInfo.InvariantCulture);
+            // 🔹 Normal ifadeleri hesapla
+            expr = expr.Replace("×", "*").Replace("÷", "/").Replace("–", "-");
 
-            if (double.IsNaN(result))
+            var dt = new System.Data.DataTable();
+            var val = Convert.ToDouble(dt.Compute(expr, ""), CultureInfo.InvariantCulture);
+
+            if (double.IsNaN(val))
             {
                 Display.Text = "Tanımsız";
                 Display.TextColor = Colors.Red;
-                _input = "";
-                return;
             }
-            else if (double.IsInfinity(result))
+            else if (double.IsInfinity(val))
             {
                 Display.Text = "Belirsiz";
                 Display.TextColor = Colors.Red;
-                _input = "";
-                return;
             }
-
-            Display.Text = result.ToString(CultureInfo.CurrentCulture);
-            Display.TextColor = Colors.Black;
-            _input = result.ToString(CultureInfo.InvariantCulture);
+            else
+            {
+                Display.Text = val.ToString(CultureInfo.CurrentCulture);
+                Display.TextColor = Colors.Black;
+                _input = val.ToString(CultureInfo.InvariantCulture);
+            }
         }
         catch
         {
@@ -219,7 +214,6 @@ public partial class ScientificCalculatorPage : ContentPage
         _input = "";
     }
 
-
     // 🔹 Silme
     private void OnBackspaceClicked(object sender, EventArgs e)
     {
@@ -235,10 +229,10 @@ public partial class ScientificCalculatorPage : ContentPage
     {
         if (double.TryParse(Display.Text.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double val))
         {
-            val /= 100.0;
-            Display.Text = val.ToString(CultureInfo.CurrentCulture);
+            double result = val / 100.0;
+            Display.Text = result.ToString(CultureInfo.CurrentCulture);
             Display.TextColor = Colors.Black;
-            _input = Display.Text.Replace(",", ".");
+            _input = result.ToString(CultureInfo.InvariantCulture);
         }
     }
 

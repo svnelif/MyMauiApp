@@ -1,0 +1,1 @@
+-v --force --timestamp=none --sign - /Users/svnelif/MyMauiApp/bin/Debug/net9.0-ios/iossimulator-arm64/MyMauiApp.app/libSystem.IO.Compression.Native.dylib
