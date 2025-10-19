@@ -7,16 +7,19 @@ namespace MyMauiApp.Views;
 
 public partial class ScientificCalculatorPage : ContentPage
 {
+    // Kullanıcının girdiği işlemi metin olarak tutar
     private string _input = "";
+    // Cihazın yerel ondalık ayracını alır (örneğin Türkçe için ",")
     private readonly string _decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
 
     public ScientificCalculatorPage()
     {
         InitializeComponent();
+        // Uygulama açıldığında ekranda sıfır görünür
         Display.Text = "0";
     }
 
-    // ☰ Menü
+    // Menü düğmesine tıklanınca yan menüyü açar
     private void OnMenuClicked(object sender, EventArgs e)
     {
         if (Shell.Current is not null)
@@ -26,7 +29,7 @@ public partial class ScientificCalculatorPage : ContentPage
         }
     }
 
-    // 🔹 Sayı tuşları
+    // Sayı butonlarına tıklanınca ekrana sayıyı ekler
     private void OnNumberClicked(object sender, EventArgs e)
     {
         var num = ((Button)sender).Text;
@@ -38,7 +41,7 @@ public partial class ScientificCalculatorPage : ContentPage
         _input = Display.Text.Replace(",", ".");
     }
 
-    // 🔹 Virgül
+    // Ondalık ayırıcı (virgül veya nokta) eklendiğinde çağrılır
     private void OnDecimalClicked(object sender, EventArgs e)
     {
         if (!Display.Text.Contains(_decimalSeparator))
@@ -48,7 +51,7 @@ public partial class ScientificCalculatorPage : ContentPage
         }
     }
 
-    // 🔹 Parantez
+    // Parantez açma veya kapama tuşuna basıldığında çağrılır
     private void OnParenClicked(object sender, EventArgs e)
     {
         var t = ((Button)sender).Text;
@@ -60,7 +63,7 @@ public partial class ScientificCalculatorPage : ContentPage
         _input = Display.Text.Replace(",", ".");
     }
 
-    // 🔹 Operatörler
+    // Matematiksel operatörlerin (+, -, ×, ÷, mod, ^) tıklanma işlemi
     private void OnOperatorClicked(object sender, EventArgs e)
     {
         var op = ((Button)sender).Text switch
@@ -77,6 +80,7 @@ public partial class ScientificCalculatorPage : ContentPage
         if (string.IsNullOrWhiteSpace(_input))
             return;
 
+        // Art arda iki operatör girilirse sonuncusu geçerli olur
         if (_input.EndsWith(" + ") || _input.EndsWith(" - ") ||
             _input.EndsWith(" * ") || _input.EndsWith(" / ") ||
             _input.EndsWith(" % ") || _input.EndsWith(" ^ "))
@@ -88,15 +92,16 @@ public partial class ScientificCalculatorPage : ContentPage
         Display.Text = _input.Replace("*", "×").Replace("/", "÷").Replace("-", "–");
     }
 
-    // 🔹 Token handler (XAML’de olabilir)
+    // Bazı XAML yapılandırmalarında event binding için eklenmiştir
     private void OnFunctionTokenClicked(object sender, EventArgs e)
     {
         OnFunctionClicked(sender, e);
     }
 
-    // 🔹 Fonksiyonlar
+    // Bilimsel fonksiyonların (sin, cos, tan, log, ln, exp, faktöriyel vb.) hesaplaması
     private async void OnFunctionClicked(object sender, EventArgs e)
     {
+        // Ekrandaki sayıyı double tipine dönüştürür
         if (!double.TryParse(Display.Text.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double v))
             return;
 
@@ -105,6 +110,7 @@ public partial class ScientificCalculatorPage : ContentPage
 
         try
         {
+            // Fonksiyon tipine göre işlem yapılır
             switch (func)
             {
                 case "x²": result = Math.Pow(v, 2); break;
@@ -163,12 +169,14 @@ public partial class ScientificCalculatorPage : ContentPage
                 default: return;
             }
 
+            // Hesaplanan sonuç geçersizse hata gösterilir
             if (double.IsNaN(result))
                 await ShowError("Sonuç tanımsızdır.", "Tanımsız");
             else if (double.IsInfinity(result))
                 await ShowError("Sonuç belirsizdir.", "Belirsiz");
             else
             {
+                // Sonuç ekrana yazılır
                 Display.Text = result.ToString(CultureInfo.CurrentCulture);
                 Display.TextColor = Colors.Black;
                 _input = result.ToString(CultureInfo.InvariantCulture);
@@ -180,34 +188,41 @@ public partial class ScientificCalculatorPage : ContentPage
         }
     }
 
-    // 🔹 "=" işlemi
+    // Eşittir (=) butonuna basıldığında hesaplama yapılır
     private async void OnEqualsClicked(object sender, EventArgs e)
     {
         try
         {
+            // Girilen ifadeyi uygun formata çevirir
             string expr = _input
                 .Replace("×", "*")
                 .Replace("÷", "/")
                 .Replace("–", "-")
                 .Replace(",", ".");
 
+            // 0/0 ve 0%0 gibi özel durumlar
             if (ContainsZeroOverZero(expr) || expr.Contains("0 % 0") || expr.Contains("0%0"))
             {
                 await ShowError("0/0 veya 0%0 işlemi belirsizdir.", "Belirsiz");
                 return;
             }
 
+            // Sıfıra bölme kontrolü
             if (DividesByZero(expr))
             {
                 await ShowError("Sıfıra bölme işlemi tanımsızdır.", "Tanımsız");
                 return;
             }
 
+            // Üs alma işlemlerini değerlendirir (örneğin 2^3)
             expr = EvaluatePowers(expr);
+
+            // System.Data.DataTable ile ifadeyi çözümler
             var table = new DataTable();
             var resultObj = table.Compute(expr, "");
             double result = Convert.ToDouble(resultObj, CultureInfo.InvariantCulture);
 
+            // Sonuç kontrolü
             if (double.IsNaN(result))
             {
                 await ShowError("Sonuç tanımsızdır.", "Tanımsız");
@@ -219,6 +234,7 @@ public partial class ScientificCalculatorPage : ContentPage
                 return;
             }
 
+            // Sonuç ekrana yazılır
             Display.Text = result.ToString(CultureInfo.CurrentCulture);
             Display.TextColor = Colors.Black;
             _input = result.ToString(CultureInfo.InvariantCulture);
@@ -229,30 +245,33 @@ public partial class ScientificCalculatorPage : ContentPage
         }
     }
 
-    // 🔹 Ortak hata gösterim metodu
+    // Hatalı durumlarda kullanıcıya uyarı gösterir
     private async Task ShowError(string message, string type)
     {
         Display.Text = type;
         Display.TextColor = Colors.Red;
         _input = "";
 
-        // kullanıcıya alert göster
+        // Hata mesajını kullanıcıya gösterir
         await DisplayAlert("Hata", message, "Tamam");
 
-        // alert kapandıktan sonra ekranı sıfırla
+        // Tamama basıldıktan sonra ekran sıfırlanır
         Display.Text = "0";
         Display.TextColor = Colors.Black;
     }
 
+    // 0/0 kontrolü
     private static bool ContainsZeroOverZero(string s)
         => s.Contains("0 / 0") || s.Contains("0/0");
 
+    // Sıfıra bölme kontrolü (0/0 haricinde)
     private static bool DividesByZero(string s)
     {
         var hasDivideZero = s.Contains("/ 0") || s.Contains("/0");
         return hasDivideZero && !ContainsZeroOverZero(s);
     }
 
+    // Üs işlemleri (örneğin 2^3 = 8)
     private static string EvaluatePowers(string expr)
     {
         var powPattern = new Regex(@"(?<a>-?\d+(\.\d+)?)\s*\^\s*(?<b>-?\d+(\.\d+)?)");
@@ -271,6 +290,7 @@ public partial class ScientificCalculatorPage : ContentPage
         return expr;
     }
 
+    // C butonuna basıldığında ekran sıfırlanır
     private void OnClearClicked(object sender, EventArgs e)
     {
         Display.Text = "0";
@@ -278,6 +298,7 @@ public partial class ScientificCalculatorPage : ContentPage
         _input = "";
     }
 
+    // Geri silme işlemi (⌫)
     private void OnBackspaceClicked(object sender, EventArgs e)
     {
         if (!string.IsNullOrEmpty(Display.Text) && Display.Text != "0")
@@ -287,6 +308,7 @@ public partial class ScientificCalculatorPage : ContentPage
         }
     }
 
+    // Yüzde (%) işlemi
     private void OnPercentClicked(object sender, EventArgs e)
     {
         if (double.TryParse(Display.Text.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double val))
@@ -298,6 +320,7 @@ public partial class ScientificCalculatorPage : ContentPage
         }
     }
 
+    // Pozitif/negatif (±) işlemi
     private void OnNegateClicked(object sender, EventArgs e)
     {
         if (double.TryParse(Display.Text.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double val))
