@@ -6,9 +6,4 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
     }
-
-    private async void OnSettingsClicked(object sender, EventArgs e)
-    {
-        await DisplayAlert("Settings", "Ayarlar henüz eklenmedi 😊", "Tamam");
-    }
 }

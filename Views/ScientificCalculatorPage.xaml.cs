@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
@@ -15,7 +16,7 @@ public partial class ScientificCalculatorPage : ContentPage
         Display.Text = "0";
     }
 
-    // ☰ Menü (sidebar)
+    // ☰ Menü
     private void OnMenuClicked(object sender, EventArgs e)
     {
         if (Shell.Current is not null)
@@ -25,11 +26,11 @@ public partial class ScientificCalculatorPage : ContentPage
         }
     }
 
-    // 🔹 Sayı butonları
+    // 🔹 Sayı tuşları
     private void OnNumberClicked(object sender, EventArgs e)
     {
         var num = ((Button)sender).Text;
-        if (Display.Text == "0" || Display.Text == "Hata" || Display.Text == "Tanımsız" || Display.Text == "Belirsiz")
+        if (Display.Text is "0" or "Hata" or "Tanımsız" or "Belirsiz")
             Display.Text = num;
         else
             Display.Text += num;
@@ -37,7 +38,7 @@ public partial class ScientificCalculatorPage : ContentPage
         _input = Display.Text.Replace(",", ".");
     }
 
-    // 🔹 Virgül / Nokta
+    // 🔹 Virgül
     private void OnDecimalClicked(object sender, EventArgs e)
     {
         if (!Display.Text.Contains(_decimalSeparator))
@@ -45,6 +46,18 @@ public partial class ScientificCalculatorPage : ContentPage
             Display.Text += _decimalSeparator;
             _input = Display.Text.Replace(",", ".");
         }
+    }
+
+    // 🔹 Parantez
+    private void OnParenClicked(object sender, EventArgs e)
+    {
+        var t = ((Button)sender).Text;
+        if (Display.Text is "0" or "Hata" or "Tanımsız" or "Belirsiz")
+            Display.Text = t;
+        else
+            Display.Text += t;
+
+        _input = Display.Text.Replace(",", ".");
     }
 
     // 🔹 Operatörler
@@ -64,149 +77,200 @@ public partial class ScientificCalculatorPage : ContentPage
         if (string.IsNullOrWhiteSpace(_input))
             return;
 
+        if (_input.EndsWith(" + ") || _input.EndsWith(" - ") ||
+            _input.EndsWith(" * ") || _input.EndsWith(" / ") ||
+            _input.EndsWith(" % ") || _input.EndsWith(" ^ "))
+        {
+            _input = _input[..^3];
+        }
+
         _input += $" {op} ";
         Display.Text = _input.Replace("*", "×").Replace("/", "÷").Replace("-", "–");
     }
 
-    // 🔹 Fonksiyonlar (bilimsel)
-    private void OnFunctionClicked(object sender, EventArgs e)
-{
-    var func = ((Button)sender).Text;
-
-    // Eğer ekranda hata varsa sıfırla
-    if (Display.Text == "Hata" || Display.Text == "Tanımsız" || Display.Text == "Belirsiz")
+    // 🔹 Token handler (XAML’de olabilir)
+    private void OnFunctionTokenClicked(object sender, EventArgs e)
     {
-        Display.Text = "0";
-        _input = "";
+        OnFunctionClicked(sender, e);
     }
 
-    // Eğer sin, cos, tan, ln, log₁₀ gibi bir fonksiyonsa, mevcut metne ekle
-    if (func is "sin" or "cos" or "tan" or "log₁₀" or "ln")
+    // 🔹 Fonksiyonlar
+    private async void OnFunctionClicked(object sender, EventArgs e)
     {
-        // Eğer ekran 0 veya boşsa direkt yaz
-        if (Display.Text == "0" || string.IsNullOrWhiteSpace(Display.Text))
-            Display.Text = $"{func}(";
-        else
-            Display.Text += $"{func}(";
+        if (!double.TryParse(Display.Text.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double v))
+            return;
 
-        _input = Display.Text.Replace(",", ".");
-        return;
-    }
+        var func = ((Button)sender).Text;
+        double result = v;
 
-    // Diğer fonksiyonlar (tek parametreli hesaplamalar)
-    if (!double.TryParse(Display.Text.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double v))
-        return;
-
-    double result = v;
-    try
-    {
-        switch (func)
+        try
         {
-            case "x²": result = Math.Pow(v, 2); break;
-            case "²√x": result = Math.Sqrt(v); break;
-            case "¹⁄ₓ":
-                if (v == 0) throw new DivideByZeroException();
-                result = 1 / v;
-                break;
-            case "10ˣ": result = Math.Pow(10, v); break;
-            case "n!":
-                if (v < 0) throw new Exception("Negatif sayının faktöriyeli yok.");
-                result = 1;
-                for (int i = 1; i <= (int)v; i++) result *= i;
-                break;
+            switch (func)
+            {
+                case "x²": result = Math.Pow(v, 2); break;
+                case "²√x": result = Math.Sqrt(v); break;
+                case "¹⁄ₓ":
+                    if (v == 0)
+                    {
+                        await ShowError("Sıfıra bölme hatası", "Tanımsız");
+                        return;
+                    }
+                    result = 1 / v;
+                    break;
+
+                case "n!":
+                    if (v < 0)
+                    {
+                        await ShowError("Negatif sayının faktöriyeli tanımsızdır.", "Tanımsız");
+                        return;
+                    }
+                    result = 1;
+                    for (int i = 1; i <= (int)v; i++) result *= i;
+                    break;
+
+                case "exp": result = Math.Exp(v); break;
+                case "10ˣ": result = Math.Pow(10, v); break;
+                case "sin": result = Math.Sin(v * Math.PI / 180.0); break;
+                case "cos": result = Math.Cos(v * Math.PI / 180.0); break;
+
+                case "tan":
+                    if (Math.Abs(v % 180) == 90)
+                    {
+                        await ShowError("tan(90° + 180n) tanımsızdır.", "Tanımsız");
+                        return;
+                    }
+                    result = Math.Tan(v * Math.PI / 180.0);
+                    break;
+
+                case "ln":
+                    if (v <= 0)
+                    {
+                        await ShowError("ln fonksiyonu için argüman (x) > 0 olmalıdır.", "Tanımsız");
+                        return;
+                    }
+                    result = Math.Log(v);
+                    break;
+
+                case "log₁₀":
+                    if (v <= 0)
+                    {
+                        await ShowError("log₁₀ fonksiyonu için argüman (x) > 0 olmalıdır.", "Tanımsız");
+                        return;
+                    }
+                    result = Math.Log10(v);
+                    break;
+
+                default: return;
+            }
+
+            if (double.IsNaN(result))
+                await ShowError("Sonuç tanımsızdır.", "Tanımsız");
+            else if (double.IsInfinity(result))
+                await ShowError("Sonuç belirsizdir.", "Belirsiz");
+            else
+            {
+                Display.Text = result.ToString(CultureInfo.CurrentCulture);
+                Display.TextColor = Colors.Black;
+                _input = result.ToString(CultureInfo.InvariantCulture);
+            }
         }
-
-        Display.Text = result.ToString(CultureInfo.CurrentCulture);
-        Display.TextColor = Colors.Black;
-        _input = result.ToString(CultureInfo.InvariantCulture);
+        catch (Exception ex)
+        {
+            await ShowError(ex.Message, "Tanımsız");
+        }
     }
-    catch
-    {
-        Display.Text = "Tanımsız";
-        Display.TextColor = Colors.Red;
-    }
-}
 
-    // 🔹 Eşittir
-    private void OnEqualsClicked(object sender, EventArgs e)
+    // 🔹 "=" işlemi
+    private async void OnEqualsClicked(object sender, EventArgs e)
     {
         try
         {
-            string expr = Display.Text.Replace(",", ".").Trim();
+            string expr = _input
+                .Replace("×", "*")
+                .Replace("÷", "/")
+                .Replace("–", "-")
+                .Replace(",", ".");
 
-            // 🔍 sin(...), cos(...), tan(...), ln(...), log₁₀(...)
-            var match = Regex.Match(expr, @"(sin|cos|tan|log₁₀|ln)\(([^()]+)\)");
-            if (match.Success)
+            if (ContainsZeroOverZero(expr) || expr.Contains("0 % 0") || expr.Contains("0%0"))
             {
-                string func = match.Groups[1].Value;
-                string innerExpr = match.Groups[2].Value;
-
-                // parantez içindeki ifadeyi hesapla
-                var table = new System.Data.DataTable();
-                double innerValue = Convert.ToDouble(table.Compute(innerExpr, ""), CultureInfo.InvariantCulture);
-
-                double result = func switch
-                {
-                    "sin" => Math.Sin(innerValue * Math.PI / 180),
-                    "cos" => Math.Cos(innerValue * Math.PI / 180),
-                    "tan" => Math.Tan(innerValue * Math.PI / 180),
-                    "ln" => Math.Log(innerValue),
-                    "log₁₀" => Math.Log10(innerValue),
-                    _ => double.NaN
-                };
-
-                if (double.IsNaN(result))
-                {
-                    Display.Text = "Tanımsız";
-                    Display.TextColor = Colors.Red;
-                }
-                else if (double.IsInfinity(result))
-                {
-                    Display.Text = "Belirsiz";
-                    Display.TextColor = Colors.Red;
-                }
-                else
-                {
-                    Display.Text = result.ToString(CultureInfo.CurrentCulture);
-                    Display.TextColor = Colors.Black;
-                    _input = result.ToString(CultureInfo.InvariantCulture);
-                }
-
+                await ShowError("0/0 veya 0%0 işlemi belirsizdir.", "Belirsiz");
                 return;
             }
 
-            // 🔹 Normal ifadeleri hesapla
-            expr = expr.Replace("×", "*").Replace("÷", "/").Replace("–", "-");
+            if (DividesByZero(expr))
+            {
+                await ShowError("Sıfıra bölme işlemi tanımsızdır.", "Tanımsız");
+                return;
+            }
 
-            var dt = new System.Data.DataTable();
-            var val = Convert.ToDouble(dt.Compute(expr, ""), CultureInfo.InvariantCulture);
+            expr = EvaluatePowers(expr);
+            var table = new DataTable();
+            var resultObj = table.Compute(expr, "");
+            double result = Convert.ToDouble(resultObj, CultureInfo.InvariantCulture);
 
-            if (double.IsNaN(val))
+            if (double.IsNaN(result))
             {
-                Display.Text = "Tanımsız";
-                Display.TextColor = Colors.Red;
+                await ShowError("Sonuç tanımsızdır.", "Tanımsız");
+                return;
             }
-            else if (double.IsInfinity(val))
+            if (double.IsInfinity(result))
             {
-                Display.Text = "Belirsiz";
-                Display.TextColor = Colors.Red;
+                await ShowError("Sonuç belirsizdir.", "Belirsiz");
+                return;
             }
-            else
-            {
-                Display.Text = val.ToString(CultureInfo.CurrentCulture);
-                Display.TextColor = Colors.Black;
-                _input = val.ToString(CultureInfo.InvariantCulture);
-            }
+
+            Display.Text = result.ToString(CultureInfo.CurrentCulture);
+            Display.TextColor = Colors.Black;
+            _input = result.ToString(CultureInfo.InvariantCulture);
         }
         catch
         {
-            Display.Text = "Tanımsız";
-            Display.TextColor = Colors.Red;
-            _input = "";
+            await ShowError("Hesaplama sırasında bir hata oluştu.", "Tanımsız");
         }
     }
 
-    // 🔹 Temizle (⟳)
+    // 🔹 Ortak hata gösterim metodu
+    private async Task ShowError(string message, string type)
+    {
+        Display.Text = type;
+        Display.TextColor = Colors.Red;
+        _input = "";
+
+        // kullanıcıya alert göster
+        await DisplayAlert("Hata", message, "Tamam");
+
+        // alert kapandıktan sonra ekranı sıfırla
+        Display.Text = "0";
+        Display.TextColor = Colors.Black;
+    }
+
+    private static bool ContainsZeroOverZero(string s)
+        => s.Contains("0 / 0") || s.Contains("0/0");
+
+    private static bool DividesByZero(string s)
+    {
+        var hasDivideZero = s.Contains("/ 0") || s.Contains("/0");
+        return hasDivideZero && !ContainsZeroOverZero(s);
+    }
+
+    private static string EvaluatePowers(string expr)
+    {
+        var powPattern = new Regex(@"(?<a>-?\d+(\.\d+)?)\s*\^\s*(?<b>-?\d+(\.\d+)?)");
+        while (true)
+        {
+            var m = powPattern.Match(expr);
+            if (!m.Success) break;
+
+            double a = double.Parse(m.Groups["a"].Value, CultureInfo.InvariantCulture);
+            double b = double.Parse(m.Groups["b"].Value, CultureInfo.InvariantCulture);
+            double val = Math.Pow(a, b);
+
+            var rep = double.IsNaN(val) ? "NaN" : val.ToString(CultureInfo.InvariantCulture);
+            expr = powPattern.Replace(expr, rep, 1);
+        }
+        return expr;
+    }
+
     private void OnClearClicked(object sender, EventArgs e)
     {
         Display.Text = "0";
@@ -214,7 +278,6 @@ public partial class ScientificCalculatorPage : ContentPage
         _input = "";
     }
 
-    // 🔹 Silme
     private void OnBackspaceClicked(object sender, EventArgs e)
     {
         if (!string.IsNullOrEmpty(Display.Text) && Display.Text != "0")
@@ -224,19 +287,17 @@ public partial class ScientificCalculatorPage : ContentPage
         }
     }
 
-    // 🔹 Yüzde
     private void OnPercentClicked(object sender, EventArgs e)
     {
         if (double.TryParse(Display.Text.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double val))
         {
-            double result = val / 100.0;
-            Display.Text = result.ToString(CultureInfo.CurrentCulture);
+            val /= 100.0;
+            Display.Text = val.ToString(CultureInfo.CurrentCulture);
             Display.TextColor = Colors.Black;
-            _input = result.ToString(CultureInfo.InvariantCulture);
+            _input = Display.Text.Replace(",", ".");
         }
     }
 
-    // 🔹 İşaret değiştir
     private void OnNegateClicked(object sender, EventArgs e)
     {
         if (double.TryParse(Display.Text.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double val))

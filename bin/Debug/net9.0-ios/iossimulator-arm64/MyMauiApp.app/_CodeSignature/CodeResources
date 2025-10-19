@@ -16,10 +16,6 @@
 		<data>
 		YxtzywMUuteQ2B+fv/AN+wV/XgM=
 		</data>
-		<key>MauiInfo.plist</key>
-		<data>
-		iEtuUGCV6JM3gxS/pO33swhmpp8=
-		</data>
 		<key>MauiSplash.storyboardc/01J-lp-oVM-view-Ze5-6b-2t3.nib</key>
 		<data>
 		Y78DTyz7+rkuDbhphGJe+YK2rLQ=
@@ -122,11 +118,11 @@
 		</data>
 		<key>MyMauiApp.dll</key>
 		<data>
-		OhdRk+V9pGyJXfK45dusTmPuQQg=
+		HId1AqEdFgZnUEMG27lWfepj6q8=
 		</data>
 		<key>MyMauiApp.pdb</key>
 		<data>
-		NQiroc4cRdGfZYAW1a72g/cdNFc=
+		2VHVtOSlkXS0ww9OsPA73bc0Xys=
 		</data>
 		<key>OpenSans-Regular.ttf</key>
 		<data>
@@ -1041,13 +1037,6 @@
 			wMRm8AIKV4UWSgH2XJKcst78QrhEt/lHsqnbgPmsy24=
 			</data>
 		</dict>
-		<key>MauiInfo.plist</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			tx0KXqEC+DvcCGyogQTEQWHcCWJYYqH24NtPwhpQEjo=
-			</data>
-		</dict>
 		<key>MauiSplash.storyboardc/01J-lp-oVM-view-Ze5-6b-2t3.nib</key>
 		<dict>
 			<key>hash2</key>
@@ -1227,14 +1216,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			AfdCechuZyhn9zesQnEtplf+0ZpvGrrCCBirDRlMZQM=
+			MGN0zwVzSx/I/k58UmU/R3qyUV3uB6qoqI0hWlLWWaM=
 			</data>
 		</dict>
 		<key>MyMauiApp.pdb</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			x2z/3l5aQAxMTT9TUSS2YgkvQDxHTbQZQat1IkTS7bU=
+			klzjrKHBM+su6nQgGBeOuO2Zx7TEhlQYiUaAXmOBqZM=
 			</data>
 		</dict>
 		<key>OpenSans-Regular.ttf</key>

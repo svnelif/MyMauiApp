@@ -8,9 +8,9 @@
 
         <!-- Üst Başlık -->
         <Grid ColumnDefinitions="Auto,*,Auto"
-            VerticalOptions="Start"
-            Margin="0,10,0,10"
-            HeightRequest="40">
+              VerticalOptions="Start"
+              Margin="0,10,0,10"
+              HeightRequest="40">
 
             <!-- ☰ Menü Butonu -->
             <Button
@@ -35,21 +35,19 @@
                 Padding="10,0,0,0"
                 Margin="0,5,0,0" />
 
-            <!-- 🔁 Yenile (Buton versiyonu) -->
+            <!-- 🔁 Yenile -->
             <Button
-            Grid.Column="2"
-            Text="⟳"
-            FontSize="24"
-            BackgroundColor="Transparent"
-            TextColor="#3B3B3B"
-            Clicked="OnClearClicked"
-            HorizontalOptions="End"
-            VerticalOptions="Center"
-            WidthRequest="60"
-            HeightRequest="60"
-            Padding="0"
-            InputTransparent="False" />
-
+                Grid.Column="2"
+                Text="⟳"
+                FontSize="24"
+                BackgroundColor="Transparent"
+                TextColor="#3B3B3B"
+                Clicked="OnClearClicked"
+                HorizontalOptions="End"
+                VerticalOptions="Center"
+                WidthRequest="60"
+                HeightRequest="60"
+                Padding="0" />
         </Grid>
 
 
@@ -76,11 +74,11 @@
               ColumnSpacing="8">
 
             <!-- 1. Satır -->
-            <Button Text="sin" Grid.Row="0" Grid.Column="0" Style="{StaticResource CalcBtn}" Clicked="OnFunctionClicked"/>
-            <Button Text="cos" Grid.Row="0" Grid.Column="1" Style="{StaticResource CalcBtn}" Clicked="OnFunctionClicked"/>
-            <Button Text="tan" Grid.Row="0" Grid.Column="2" Style="{StaticResource CalcBtn}" Clicked="OnFunctionClicked"/>
-            <Button Text="ln" Grid.Row="0" Grid.Column="3" Style="{StaticResource CalcBtn}" Clicked="OnFunctionClicked"/>
-            <Button Text="log₁₀" Grid.Row="0" Grid.Column="4" Style="{StaticResource CalcBtn}" Clicked="OnFunctionClicked"/>
+            <Button Text="sin"   Grid.Row="0" Grid.Column="0" Style="{StaticResource CalcBtn}" Clicked="OnFunctionTokenClicked"/>
+            <Button Text="cos"   Grid.Row="0" Grid.Column="1" Style="{StaticResource CalcBtn}" Clicked="OnFunctionTokenClicked"/>
+            <Button Text="tan"   Grid.Row="0" Grid.Column="2" Style="{StaticResource CalcBtn}" Clicked="OnFunctionTokenClicked"/>
+            <Button Text="ln"    Grid.Row="0" Grid.Column="3" Style="{StaticResource CalcBtn}" Clicked="OnFunctionTokenClicked"/>
+            <Button Text="log₁₀" Grid.Row="0" Grid.Column="4" Style="{StaticResource CalcBtn}" Clicked="OnFunctionTokenClicked"/>
 
             <!-- 2. Satır -->
             <Button Text="x²" Grid.Row="1" Grid.Column="0" Style="{StaticResource CalcBtn}" Clicked="OnFunctionClicked"/>
@@ -91,13 +89,13 @@
 
             <!-- 3. Satır -->
             <Button Text="xʸ" Grid.Row="2" Grid.Column="0" Style="{StaticResource CalcBtn}" Clicked="OnOperatorClicked"/>
-            <Button Text="(" Grid.Row="2" Grid.Column="1" Style="{StaticResource CalcBtn}" Clicked="OnOperatorClicked"/>
-            <Button Text=")" Grid.Row="2" Grid.Column="2" Style="{StaticResource CalcBtn}" Clicked="OnOperatorClicked"/>
+            <Button Text="("  Grid.Row="2" Grid.Column="1" Style="{StaticResource CalcBtn}" Clicked="OnParenClicked"/>
+            <Button Text=")"  Grid.Row="2" Grid.Column="2" Style="{StaticResource CalcBtn}" Clicked="OnParenClicked"/>
             <Button Text="mod" Grid.Row="2" Grid.Column="3" Style="{StaticResource CalcBtnOp}" Clicked="OnOperatorClicked"/>
-            <Button Text="÷" Grid.Row="2" Grid.Column="4" Style="{StaticResource CalcBtnOp}" Clicked="OnOperatorClicked"/>
+            <Button Text="÷"  Grid.Row="2" Grid.Column="4" Style="{StaticResource CalcBtnOp}" Clicked="OnOperatorClicked"/>
 
             <!-- 4. Satır -->
-            <Button Text="10ˣ" Grid.Row="3" Grid.Column="0" Style="{StaticResource CalcBtn}" Clicked="OnFunctionClicked"/>
+            <Button Text="10ˣ" Grid.Row="3" Grid.Column="0" Style="{StaticResource CalcBtn}" Clicked="OnFunctionTokenClicked"/>
             <Button Text="7" Grid.Row="3" Grid.Column="1" Style="{StaticResource CalcBtn}" Clicked="OnNumberClicked"/>
             <Button Text="8" Grid.Row="3" Grid.Column="2" Style="{StaticResource CalcBtn}" Clicked="OnNumberClicked"/>
             <Button Text="9" Grid.Row="3" Grid.Column="3" Style="{StaticResource CalcBtn}" Clicked="OnNumberClicked"/>
@@ -119,11 +117,10 @@
 
             <!-- 7. Satır -->
             <Button Text="+/–" Grid.Row="6" Grid.Column="0" Style="{StaticResource CalcBtn}" Clicked="OnNegateClicked"/>
-            <Button Text="0" Grid.Row="6" Grid.Column="1" Style="{StaticResource CalcBtn}" Clicked="OnNumberClicked"/>
-            <Button Text="," Grid.Row="6" Grid.Column="2" Style="{StaticResource CalcBtn}" Clicked="OnDecimalClicked"/>
-            <Button Text="%" Grid.Row="6" Grid.Column="3" Style="{StaticResource CalcBtn}" Clicked="OnPercentClicked"/>
-            <Button Text="=" Grid.Row="6" Grid.Column="4" Style="{StaticResource CalcBtnEqual}" Clicked="OnEqualsClicked"/>
-
+            <Button Text="0"   Grid.Row="6" Grid.Column="1" Style="{StaticResource CalcBtn}" Clicked="OnNumberClicked"/>
+            <Button Text=","   Grid.Row="6" Grid.Column="2" Style="{StaticResource CalcBtn}" Clicked="OnDecimalClicked"/>
+            <Button Text="%"   Grid.Row="6" Grid.Column="3" Style="{StaticResource CalcBtn}" Clicked="OnPercentClicked"/>
+            <Button Text="="   Grid.Row="6" Grid.Column="4" Style="{StaticResource CalcBtnEqual}" Clicked="OnEqualsClicked"/>
         </Grid>
     </VerticalStackLayout>
 </ContentPage>

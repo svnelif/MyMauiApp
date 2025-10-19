@@ -7,7 +7,7 @@
     FlyoutBehavior="Flyout"
     Shell.FlyoutWidth="220">
 
-    <!-- 🔹 Uygulama Başlığı -->
+    <!--  Uygulama Başlığı -->
     <Shell.FlyoutHeader>
         <Grid BackgroundColor="#F5F7FB" Padding="20,40,0,20">
             <Label Text="Calculator"
@@ -18,7 +18,7 @@
         </Grid>
     </Shell.FlyoutHeader>
 
-    <!-- 🔹 Flyout menü satırı şablonu (ikon yok, büyük pembe yazı) -->
+    <!--  Flyout menü satırı şablonu  -->
     <Shell.ItemTemplate>
         <DataTemplate>
             <Grid Padding="18,12">
@@ -31,7 +31,7 @@
         </DataTemplate>
     </Shell.ItemTemplate>
 
-    <!-- 🔹 Menü öğeleri -->
+    <!--  Menü öğeleri -->
     <FlyoutItem Title="Standard" Route="StandardCalculatorPage">
         <ShellContent Title="Standard"
                       ContentTemplate="{DataTemplate views:StandardCalculatorPage}" />
